@@ -30,11 +30,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const basePath = 'assets';
     const imageUrls = [];
     
+
+      
+    const cardNames = ["Trang", "Hà", "Ngân", "Huyền", "Trâm", ""];
+    const cardColors = [
+        "#8eb168",   
+        "#ecbeb7",   
+        "#ca9ff9",   
+        "#b1d4e0",   
+        "#fbb79d",   
+        ""  
+    ];
+    
      
     for (let i = 1; i <= imageCount; i++) {
-        imageUrls.push(`${basePath}/IMG_145${i}.PNG`);
+        imageUrls.push(`${basePath}/IMG_145${i}-min.PNG`);
     }
-    imageUrls.push(`${basePath}/Card-bg.PNG`);
+    imageUrls.push(`${basePath}/Card-bg-min.PNG`);
     imageUrls.push(`${basePath}/bg.jpg`);
     
      
@@ -99,11 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (container) {
             container.innerHTML = '';
             
-             
+              
             let nextImageIndex = 1;
             let flippedCardsCount = 0;
-             
-            let isFlipping = false;  
+            let waitingForNameClick = false;   
+            let activeCard = null;   
+              
+            let isFlipping = false;   
              
             for (let i = 0; i < cardCount; i++) {
                 const cardWrapper = document.createElement('div');
@@ -113,54 +127,115 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.className = 'card';
                 card.setAttribute('data-index', i);
                 
-                 
+                  
                 const frontSide = document.createElement('div');
                 frontSide.className = 'front';
                 const frontImage = new Image();
-                frontImage.src = preloadedImages[`${basePath}/IMG_1451.PNG`].src;
+                frontImage.src = preloadedImages[`${basePath}/IMG_1451-min.PNG`].src;
                 frontSide.appendChild(frontImage);
                 
-                 
+                  
                 const backSide = document.createElement('div');
                 backSide.className = 'back';
                 const backImage = document.createElement('img');
-                backImage.src = preloadedImages[`${basePath}/Card-bg.PNG`].src;
+                backImage.src = preloadedImages[`${basePath}/Card-bg-min.PNG`].src;
                 backSide.appendChild(backImage);
                 
-                 
+                  
+                const nameOverlay = document.createElement('div');
+                nameOverlay.className = 'cute-name-overlay';
+                
+                  
+                const nameBanner = document.createElement('div');
+                nameBanner.className = 'name-banner';
+                const nameText = document.createElement('span');
+                nameText.className = 'name-text';
+                nameBanner.appendChild(nameText);
+                
+                  
+                nameOverlay.appendChild(nameBanner);
+                
+                  
                 card.appendChild(frontSide);
                 card.appendChild(backSide);
+                card.appendChild(nameOverlay);   
                 cardWrapper.appendChild(card);
                 
-                 
+                  
                 const handleCardFlip = (e) => {
-                     
+                      
                     if (e.type === 'touchstart') {
                         e.preventDefault();
                     }
                     
-                     
-                     
-                     
-                     
+                      
+                    if (waitingForNameClick && card === activeCard) {
+                          
+                        const currentImageIndex = (nextImageIndex - 1 + imageCount) % imageCount;
+                        const nameIndex = currentImageIndex % cardNames.length -1;
+                        
+                          
+                        nameText.textContent = cardNames[nameIndex];
+                        nameBanner.style.backgroundColor = cardColors[nameIndex];
+                        
+                          
+                        card.classList.add('show-name');
+                        
+                          
+                        card.classList.remove('needs-click');
+                        
+                          
+                        waitingForNameClick = false;
+                        activeCard = null;
+                        
+                          
+                          
+                        
+                        return;
+                    }
+                    
+                      
+                    if (waitingForNameClick) {
+                        return;
+                    }
+                    
+                      
+                    if (card.classList.contains('show-name')) {
+                        return;
+                    }
+                    
+                      
+                      
+                      
+                      
                     if (!isFlipping && !card.classList.contains('flipped') && flippedCardsCount < imageCount) {
-                         
+                          
                         isFlipping = true;
                         
-                         
-                        frontImage.src = preloadedImages[`${basePath}/IMG_145${nextImageIndex}.PNG`].src;
+                          
+                        frontImage.src = preloadedImages[`${basePath}/IMG_145${nextImageIndex}-min.PNG`].src;
                         
-                         
+                          
                         card.classList.add('flipped');
                         
-                         
+                          
                         nextImageIndex = nextImageIndex % imageCount + 1;
                         flippedCardsCount++;
                         
-                         
+                          
                         setTimeout(() => {
                             isFlipping = false;
-                        }, 800);  
+                            
+                              
+                            if (flippedCardsCount < imageCount) {
+                                  
+                                waitingForNameClick = true;
+                                activeCard = card;
+                                
+                                  
+                                card.classList.add('needs-click');
+                            }
+                        }, 800);   
                     }
                 };
                 
