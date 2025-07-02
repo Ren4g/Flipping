@@ -36,6 +36,9 @@ body {
   cursor: pointer;
   transition: transform 0.3s ease;
   margin: 0 auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 .card-wrapper:hover {
   transform: translateY(-5px);
