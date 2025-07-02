@@ -176,8 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const frontSide = document.createElement('div');
                 frontSide.className = 'front';
                 const frontImage = new Image();
-                // Start with card back image, will be replaced when flipped
-                frontImage.src = preloadedImages[`${basePath}/Card-bg-min.PNG`].src;
+                // Don't set src initially - will be set when card is flipped
+                frontImage.style.display = 'none'; // Hide until flipped
                 frontSide.appendChild(frontImage);
                 
                   
@@ -254,8 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
                           
                         isFlipping = true;
                         
-                          
-                        frontImage.src = preloadedImages[`${basePath}/IMG_145${nextImageIndex}-min.PNG`].src;
+                        // Use the preloaded image directly (no re-loading)
+                        const imageKey = `${basePath}/IMG_145${nextImageIndex}-min.PNG`;
+                        const preloadedImg = preloadedImages[imageKey];
+                        
+                        // Replace the frontImage with the preloaded one
+                        frontSide.removeChild(frontImage);
+                        frontSide.appendChild(preloadedImg.cloneNode());
                         
                           
                         card.classList.add('flipped');
