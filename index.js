@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const loadingText = document.createElement('div');
     loadingText.textContent = 'Chờ xíu...';
-    loadingText.style.cssText = 'color: white; font-size: 24px; margin-bottom: 20px;';
+    loadingText.style.cssText = 'color: white; font-size: clamp(18px, 5vw, 24px); margin-bottom: 20px; text-align: center; padding: 0 15px;';
     
     const progressContainer = document.createElement('div');
-    progressContainer.style.cssText = 'width: 300px; background: #333; border-radius: 10px; overflow: hidden;';
+    progressContainer.style.cssText = 'width: clamp(200px, 80%, 300px); background: #333; border-radius: 10px; overflow: hidden;';
     
     const progressBar = document.createElement('div');
     progressBar.style.cssText = 'width: 0%; height: 20px; background: #4CAF50; transition: width 0.3s;';
