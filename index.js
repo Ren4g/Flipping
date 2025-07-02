@@ -176,7 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const frontSide = document.createElement('div');
                 frontSide.className = 'front';
                 const frontImage = new Image();
-                frontImage.src = preloadedImages[`${basePath}/IMG_1451-min.PNG`].src;
+                // Start with card back image, will be replaced when flipped
+                frontImage.src = preloadedImages[`${basePath}/Card-bg-min.PNG`].src;
                 frontSide.appendChild(frontImage);
                 
                   
