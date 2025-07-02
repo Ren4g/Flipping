@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
      
-    // Create audio loading promise
     const audioPromise = new Promise((resolve, reject) => {
         const audio = document.getElementById('bg-music');
         
@@ -85,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const handleError = () => {
                 console.error('Failed to load audio');
                 updateProgress();
-                resolve(null); // Don't reject, just resolve with null
+                resolve(null); 
                 audio.removeEventListener('canplaythrough', handleCanPlayThrough);
                 audio.removeEventListener('error', handleError);
             };
