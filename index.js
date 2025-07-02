@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const preloadedImages = {};
     let loadedCount = 0;
     const totalImages = imageUrls.length;
+    const totalAssets = totalImages + 1; // +1 for audio file
     
      
     const canvas = document.createElement('canvas');
@@ -63,40 +64,85 @@ document.addEventListener('DOMContentLoaded', () => {
      
     function updateProgress() {
         loadedCount++;
-        const percentage = Math.floor((loadedCount / totalImages) * 100);
+        const percentage = Math.floor((loadedCount / totalAssets) * 100);
         progressBar.style.width = percentage + '%';
         progressText.textContent = percentage + '%';
     }
     
      
-    Promise.all(
-        imageUrls.map(url => new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'Anonymous';  
-            
-            img.onload = function() {
-                 
-                preloadedImages[url] = img;
-                
-                 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                 
+    // Create audio loading promise
+    const audioPromise = new Promise((resolve, reject) => {
+        const audio = document.getElementById('bg-music');
+        
+        if (audio) {
+            const handleCanPlayThrough = () => {
                 updateProgress();
-                resolve(img);
+                resolve(audio);
+                audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+                audio.removeEventListener('error', handleError);
             };
             
-            img.onerror = function() {
-                console.error(`Failed to load image: ${url}`);
+            const handleError = () => {
+                console.error('Failed to load audio');
                 updateProgress();
-                 
-                resolve(null);
+                resolve(null); // Don't reject, just resolve with null
+                audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+                audio.removeEventListener('error', handleError);
             };
             
-            img.src = url;
-        }))
-    ).then(() => {
+            audio.addEventListener('canplaythrough', handleCanPlayThrough);
+            audio.addEventListener('error', handleError);
+            
+            // Force load the audio
+            audio.load();
+        } else {
+            updateProgress();
+            resolve(null);
+        }
+    });
+
+    // Create image loading promises
+    const imagePromises = imageUrls.map(url => new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';  
+        
+        img.onload = function() {
+             
+            preloadedImages[url] = img;
+            
+             
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            
+             
+            updateProgress();
+            resolve(img);
+        };
+        
+        img.onerror = function() {
+            console.error(`Failed to load image: ${url}`);
+            updateProgress();
+             
+            resolve(null);
+        };
+        
+        img.src = url;
+    }));
+
+    Promise.all([...imagePromises, audioPromise]).then(() => {
+        const audio = document.getElementById('bg-music');
+        if (audio) {
+            audio.play().catch(error => {
+                console.log('Audio autoplay failed:', error);
+                const playOnFirstClick = () => {
+                    audio.play().catch(e => console.log('Audio play failed:', e));
+                    document.removeEventListener('click', playOnFirstClick);
+                    document.removeEventListener('touchstart', playOnFirstClick);
+                };
+                document.addEventListener('click', playOnFirstClick);
+                document.addEventListener('touchstart', playOnFirstClick);
+            });
+        }
          
         setTimeout(() => {
             document.body.removeChild(loadingScreen);
@@ -141,19 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 backImage.src = preloadedImages[`${basePath}/Card-bg-min.PNG`].src;
                 backSide.appendChild(backImage);
                 
-                  
+                // Create simple name overlay
                 const nameOverlay = document.createElement('div');
                 nameOverlay.className = 'cute-name-overlay';
                 
-                  
-                const nameBanner = document.createElement('div');
-                nameBanner.className = 'name-banner';
+                // Create just the name text (no banner wrapper)
                 const nameText = document.createElement('span');
                 nameText.className = 'name-text';
-                nameBanner.appendChild(nameText);
                 
-                  
-                nameOverlay.appendChild(nameBanner);
+                // Add text directly to overlay
+                nameOverlay.appendChild(nameText);
                 
                   
                 card.appendChild(frontSide);
@@ -174,11 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const currentImageIndex = (nextImageIndex - 1 + imageCount) % imageCount;
                         const nameIndex = currentImageIndex % cardNames.length -1;
                         
-                          
+                        // Update the name text
                         nameText.textContent = cardNames[nameIndex];
-                        nameBanner.style.backgroundColor = cardColors[nameIndex];
                         
-                          
+                        // Show the simple name overlay
                         card.classList.add('show-name');
                         
                           
