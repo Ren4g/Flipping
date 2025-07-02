@@ -3,20 +3,25 @@
   padding: 0;
   box-sizing: border-box;
 }
+
 :root {
   --img-width: 200px;
   --card-height: 300px;
 }
+
 body {
   background-image: url('assets/HorizontalBG.JPG');
-  background-size:auto;
+  background-size: auto;
   background-position: center;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 15px;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
+
 .card-container {
   display: grid;
   grid-template-columns: repeat(3, minmax(var(--img-width), 1fr));
@@ -27,66 +32,83 @@ body {
   padding: 20px;
   perspective: 1000px;
   transform: translateZ(0);
+  will-change: auto;
 }
+
 .card-wrapper {
   position: relative;
   width: var(--img-width);
   height: var(--card-height);
   perspective: 1000px;
   cursor: pointer;
-  transition: transform 0.3s ease;
   margin: 0 auto;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.3, 1);
+  will-change: transform;
 }
+
 .card-wrapper:hover {
-  transform: translateY(-5px);
+  transform: translateY(-5px) translateZ(0);
 }
+
 .card {
   position: relative;
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
-  transition: transform .8s ease;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, .8);
   will-change: transform;
   -webkit-transform-style: preserve-3d;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
 }
+
 .card.flipped {
-  transform: rotateY(180deg);
-  -webkit-transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(0);
+  -webkit-transform: rotateY(180deg) translateZ(0);
 }
+
 .front, .back {
   position: absolute;
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: transform .8s ease;
+  /* Optimize shadow transitions */
+  transition: box-shadow 0.3s ease;
+  will-change: auto;
 }
+
 .card.flipped .front {
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
+
 .front {
   background-color: #f8f8f8;
-  transform: rotateY(180deg);
+  transform: rotateY(180deg) translateZ(0);
 }
+
 .back {
   background-color: #3498db;
+  transform: translateZ(0);
 }
+
 img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 .cute-name-overlay {
@@ -97,15 +119,17 @@ img {
   height: 100%;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s forward ease;
+  /* Optimize name overlay transition */
+  transition: all 0.2s ease;
   z-index: 15;
-  transform: rotateY(180deg); 
+  transform: rotateY(180deg) translateZ(0);
   backface-visibility: hidden;
   pointer-events: none;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding-top: 20px;
+  will-change: opacity, visibility;
 }
 
 .card.show-name .cute-name-overlay {
@@ -114,7 +138,6 @@ img {
   pointer-events: all;
 }
 
-
 .name-text {
   font-family: sans-serif;
   font-size: clamp(5px, 1.2rem, 2rem);
@@ -122,17 +145,19 @@ img {
   color: #ffffff;
   text-align: center;
   margin: 0;
-  /* border: 1px solid rgba(255, 255, 255, 0.8); */
-  /* text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); */
+  /* Optimize text rendering */
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
 }
 
+.loading-screen {
+  font-family: sans-serif;
+}
 
-/* Responsive Media Queries */
 @media (max-width: 1200px) {
   .card-container {
     max-width: 800px;
   }
-
 }
 
 @media (max-width: 992px) {
@@ -151,7 +176,7 @@ img {
     --img-width: 150px;
     --card-height: 225px;
   }
-  body{
+  body {
     background-image: url('assets/VertiacalBG.JPG');
     background-size: cover;
   }
@@ -162,11 +187,9 @@ img {
   body {
     padding: 10px;
   }
-  
   .cute-name-overlay {
     padding-top: 10px;
   }
-  
   .name-text {
     font-size: clamp(6px, .8rem, 1.5rem);
   }
@@ -200,7 +223,6 @@ img {
   body {
     background-image: url('assets/VertiacalBG.JPG');
     background-size: cover;
-
   }
   .card-container {
     width: 98%;
@@ -209,15 +231,13 @@ img {
     grid-template-columns: repeat(3, 1fr);
   }
   .card-wrapper:hover {
-    transform: translateY(-3px);
+    transform: translateY(-3px) translateZ(0);
   }
-  
   .cute-name-overlay {
     padding-top: 10px;
   }
 }
 
-/* Landscape orientation on mobile */
 @media (max-height: 500px) and (orientation: landscape) {
   :root {
     --img-width: 100px;
@@ -230,4 +250,12 @@ img {
   body {
     padding: 5px;
   }
+}
+
+.card.needs-click {
+  will-change: transform;
+}
+
+.card-wrapper:active {
+  will-change: transform;
 }
